@@ -1,0 +1,10 @@
+{
+    "name": "anatid",
+    "version": "1.0.0",
+    "keywords": ["moules", "tribune", "coincoin", "bouchot"],
+    "author": "devnewton",
+    "contributors": [],
+    "dependencies": {
+        "node-red": "0.17.5"
+    }
+}
