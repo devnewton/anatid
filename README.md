@@ -1,6 +1,6 @@
 # anatid
 
-anatid is a node-red tribune proxy.
+anatid is a [node-red](https://nodered.org) tribune proxy.
 
 ![Screenshot](screenshot.png)
 
