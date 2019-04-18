@@ -1,8 +1,6 @@
 # anatid
 
-anatid is a [node-red](https://nodered.org) tribune proxy.
-
-![Screenshot](screenshot.png)
+anatid is a [go](https://golang.org/) tribune proxy.
 
 ## Endpoints
 
