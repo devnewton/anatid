@@ -98,18 +98,27 @@ func (a *anatid) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *anatid) pollTribunes() {
-	posts, err := tribune.PollTsv("https://faab.euromussels.eu/data/backend.tsv", "euromussels")
-	if nil != err {
-		log.Println(err)
-		return
+	tribunes := []tribune.Tribune{
+		tribune.Tribune{Name: "euromussels", BackendURL: "https://faab.euromussels.eu/data/backend.tsv"},
+		tribune.Tribune{Name: "sveetch", BackendURL: "http://sveetch.net/tribune/remote/tsv/"},
+		tribune.Tribune{Name: "moules", BackendURL: "http://moules.org/board/backend/tsv"},
+		tribune.Tribune{Name: "ototu", BackendURL: "https://ototu.euromussels.eu/goboard/backend/tsv"},
+		tribune.Tribune{Name: "dlfp", BackendURL: "https://linuxfr.org/board/index.tsv"},
 	}
-	postsJSON, err := json.Marshal(posts)
-	if nil != err {
-		log.Println(err)
+	for _, t := range tribunes {
+		log.Printf("Poll %s \n", t.Name)
+		posts, err := t.Poll()
+		if nil != err {
+			log.Println(err)
+			continue
+		}
+		postsJSON, err := json.Marshal(posts)
+		if nil != err {
+			log.Println(err)
+			continue
+		}
+		a.forward <- postsJSON
 	}
-	a.forward <- postsJSON
-	log.Print("europosts: ")
-	log.Println(len(posts))
 
 }
 

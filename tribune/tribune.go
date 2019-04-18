@@ -1,4 +1,4 @@
-package tribune 
+package tribune
 
 import (
 	"encoding/csv"
@@ -9,9 +9,24 @@ import (
 	"strconv"
 )
 
-//PollTsv Retrieve TSV backend
-func PollTsv(backendURL string, tribuneName string) (posts Posts, err error) {
-	resp, err := http.Get(backendURL)
+const (
+	// TSVBackend denotes a TSV tribune backend
+	TSVBackend = 0
+
+	// XMLBackend denotes a TSV tribune backend
+	XMLBackend = 1
+)
+
+// Tribune parameters
+type Tribune struct {
+	Name        string
+	BackendURL  string
+	BackendType int
+}
+
+//Poll Retrieve backend
+func (tribune *Tribune) Poll() (posts Posts, err error) {
+	resp, err := http.Get(tribune.BackendURL)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +57,7 @@ func PollTsv(backendURL string, tribuneName string) (posts Posts, err error) {
 			log.Println(err)
 			continue
 		}
-		post := Post{ID: id, Time: record[1], Info: record[2], Login: record[3], Message: record[4], Tribune: tribuneName}
+		post := Post{ID: id, Time: record[1], Info: record[2], Login: record[3], Message: record[4], Tribune: tribune.Name}
 		posts = append(posts, post)
 	}
 	sort.Sort(posts)
