@@ -37,8 +37,9 @@ type Tribune struct {
 	AuthentificationType int
 }
 
-type dlfpToken struct {
-	accessToken string `json:"access_token"`
+// DlfpToken OAuth2 token
+type DlfpToken struct {
+	AccessToken string `json:"access_token"`
 }
 
 // Post message to tribune
@@ -47,10 +48,10 @@ func (tribune *Tribune) Post(inRequest *http.Request) {
 		tribune.PostField: []string{inRequest.PostFormValue("message")},
 	}
 	if tribune.AuthentificationType == OAuth2Authentification {
-		var token dlfpToken
+		var token DlfpToken
 		err := json.Unmarshal([]byte(inRequest.PostFormValue("auth")), token)
 		if nil == err {
-			data.Set("bearer_token", token.accessToken)
+			data.Set("bearer_token", token.AccessToken)
 		} else {
 			log.Println(err)
 		}
