@@ -2,11 +2,14 @@ package tribune
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -17,11 +20,52 @@ const (
 	XMLBackend = 1
 )
 
+const (
+	// NoAuthentification Anonymous post
+	NoAuthentification = 0
+	// OAuth2Authentification annoying dlfp authentification
+	OAuth2Authentification = 1
+)
+
 // Tribune parameters
 type Tribune struct {
-	Name        string
-	BackendURL  string
-	BackendType int
+	Name                 string
+	BackendURL           string
+	PostURL              string
+	PostField            string
+	BackendType          int
+	AuthentificationType int
+}
+
+type dlfpToken struct {
+	accessToken string `json:"access_token"`
+}
+
+// Post message to tribune
+func (tribune *Tribune) Post(inRequest *http.Request) {
+	data := url.Values{
+		tribune.PostField: []string{inRequest.PostFormValue("message")},
+	}
+	if tribune.AuthentificationType == OAuth2Authentification {
+		var token dlfpToken
+		err := json.Unmarshal([]byte(inRequest.PostFormValue("auth")), token)
+		if nil == err {
+			data.Set("bearer_token", token.accessToken)
+		} else {
+			log.Println(err)
+		}
+	}
+	outRequest, err := http.NewRequest("POST", tribune.PostURL, strings.NewReader(data.Encode()))
+	if nil != err {
+		log.Println(err)
+		return
+	}
+	outRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	outRequest.Header.Set("User-Agent", inRequest.Header.Get("User-Agent"))
+	_, err = http.DefaultClient.Do(outRequest)
+	if nil != err {
+		log.Println(err)
+	}
 }
 
 //Poll Retrieve backend

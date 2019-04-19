@@ -46,6 +46,7 @@ type anatid struct {
 	leave    chan *client
 	forward  chan []byte
 	upgrader websocket.Upgrader
+	tribunes map[string]*tribune.Tribune
 }
 
 func newAnatid() *anatid {
@@ -57,6 +58,13 @@ func newAnatid() *anatid {
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 65536,
+		},
+		tribunes: map[string]*tribune.Tribune{
+			"euromussels": &tribune.Tribune{Name: "euromussels", BackendURL: "https://faab.euromussels.eu/data/backend.tsv", PostURL: "https://faab.euromussels.eu/add.php", PostField: "message"},
+			"sveetch":     &tribune.Tribune{Name: "sveetch", BackendURL: "http://sveetch.net/tribune/remote/tsv/", PostURL: "http://sveetch.net/tribune/post/tsv/?last_id=1", PostField: "content"},
+			"moules":      &tribune.Tribune{Name: "moules", BackendURL: "http://moules.org/board/backend/tsv", PostURL: "http://moules.org/board/add.php?backend=tsv", PostField: "message"},
+			"ototu":       &tribune.Tribune{Name: "ototu", BackendURL: "https://ototu.euromussels.eu/goboard/backend/tsv", PostURL: "https://ototu.euromussels.eu/goboard/post", PostField: "message"},
+			"dlfp":        &tribune.Tribune{Name: "dlfp ", BackendURL: "https://linuxfr.org/board/index.tsv", PostURL: "https://linuxfr.org/api/v1/board", PostField: "message", AuthentificationType: tribune.OAuth2Authentification},
 		},
 	}
 }
@@ -82,9 +90,9 @@ func (a *anatid) forwardLoop() {
 	}
 }
 
-func (a *anatid) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (a *anatid) handlePoll(w http.ResponseWriter, r *http.Request) {
 	ws, err := a.upgrader.Upgrade(w, r, nil)
-	if err != nil {
+	if nil != err {
 		if _, ok := err.(websocket.HandshakeError); !ok {
 			log.Println(err)
 		}
@@ -97,15 +105,21 @@ func (a *anatid) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c.readLoop()
 }
 
-func (a *anatid) pollTribunes() {
-	tribunes := []tribune.Tribune{
-		tribune.Tribune{Name: "euromussels", BackendURL: "https://faab.euromussels.eu/data/backend.tsv"},
-		tribune.Tribune{Name: "sveetch", BackendURL: "http://sveetch.net/tribune/remote/tsv/"},
-		tribune.Tribune{Name: "moules", BackendURL: "http://moules.org/board/backend/tsv"},
-		tribune.Tribune{Name: "ototu", BackendURL: "https://ototu.euromussels.eu/goboard/backend/tsv"},
-		tribune.Tribune{Name: "dlfp", BackendURL: "https://linuxfr.org/board/index.tsv"},
+func (a *anatid) handlePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if nil != err {
+		log.Println(err)
+		return
 	}
-	for _, t := range tribunes {
+	t := a.tribunes[r.PostFormValue("tribune")]
+	if nil != t {
+		t.Post(r)
+	}
+
+}
+
+func (a *anatid) pollTribunes() {
+	for _, t := range a.tribunes {
 		log.Printf("Poll %s \n", t.Name)
 		posts, err := t.Poll()
 		if nil != err {
@@ -136,7 +150,12 @@ func main() {
 	a := newAnatid()
 	go a.forwardLoop()
 	go a.pollLoop()
-	http.Handle("/anatid", a)
+	http.HandleFunc("/anatid/poll", func(w http.ResponseWriter, r *http.Request) {
+		a.handlePoll(w, r)
+	})
+	http.HandleFunc("/anatid/post", func(w http.ResponseWriter, r *http.Request) {
+		a.handlePost(w, r)
+	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome to anatid server."))
 	})
