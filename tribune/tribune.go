@@ -3,6 +3,7 @@ package tribune
 import (
 	"encoding/csv"
 	"encoding/json"
+	"encoding/xml"
 	"io"
 	"log"
 	"net/http"
@@ -77,11 +78,34 @@ func (tribune *Tribune) Poll() (posts Posts, err error) {
 	}
 	defer resp.Body.Close()
 
-	r := csv.NewReader(resp.Body)
+	switch tribune.BackendType {
+	case TSVBackend:
+		posts, err = tribune.parseTSVBackend(resp.Body)
+	case XMLBackend:
+		posts, err = tribune.parseXMLBackend(resp.Body)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Sort(posts)
+	return posts, nil
+}
+
+func (tribune *Tribune) parseXMLBackend(body io.ReadCloser) (Posts, error) {
+	board := Board{}
+	decoder := xml.NewDecoder(body)
+	err := decoder.Decode(&board)
+	return board.Posts, err
+}
+
+func (tribune *Tribune) parseTSVBackend(body io.ReadCloser) (Posts, error) {
+	r := csv.NewReader(body)
 	r.Comma = '\t'
 	r.LazyQuotes = true
 
-	posts = make(Posts, 0, 200)
+	posts := make(Posts, 0, 200)
 	for {
 		record, err := r.Read()
 		if nil != err {
@@ -105,6 +129,5 @@ func (tribune *Tribune) Poll() (posts Posts, err error) {
 		post := Post{ID: id, Time: record[1], Info: record[2], Login: record[3], Message: record[4], Tribune: tribune.Name}
 		posts = append(posts, post)
 	}
-	sort.Sort(posts)
 	return posts, nil
 }
