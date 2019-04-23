@@ -66,7 +66,7 @@ func newAnatid() *anatid {
 		leave:   make(chan *client),
 		forward: make(chan []byte),
 		upgrader: websocket.Upgrader{
-			ReadBufferSize:  1024,
+			ReadBufferSize:  65536,
 			WriteBufferSize: 65536,
 		},
 		tribunes: map[string]*tribune.Tribune{
@@ -91,12 +91,7 @@ func (a *anatid) forwardLoop() {
 			close(c.send)
 		case msg := <-a.forward:
 			for c := range a.clients {
-				select {
-				case c.send <- msg:
-				default:
-					delete(a.clients, c)
-					close(c.send)
-				}
+				c.send <- msg
 			}
 		}
 	}
@@ -148,12 +143,15 @@ func (a *anatid) pollTribune(t *tribune.Tribune) error {
 	if nil != err {
 		return err
 	}
-	postsJSON, err := json.Marshal(posts)
-	if nil != err {
-		return err
+	for _, p := range posts {
+		postJSON, err := json.Marshal(p)
+		if nil != err {
+			log.Println(err)
+			continue
+		}
+		a.forward <- postJSON
 	}
-	a.forward <- postsJSON
-	return nil
+	return err
 }
 
 func (a *anatid) pollLoop() {
