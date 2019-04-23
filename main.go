@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"net/http"
 	"time"
@@ -148,6 +149,10 @@ func (a *anatid) pollLoop() {
 }
 
 func main() {
+	var listenAddress string
+	flag.StringVar(&listenAddress, "listen", ":6666", "TCP address to listen on")
+	flag.Parse()
+
 	a := newAnatid()
 	go a.forwardLoop()
 	go a.pollLoop()
@@ -160,7 +165,8 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome to anatid server."))
 	})
-	err := http.ListenAndServe(":6666", nil)
+	log.Println("Listen to " + listenAddress)
+	err := http.ListenAndServe(listenAddress, nil)
 	if nil != err {
 		log.Fatal(err)
 	}
