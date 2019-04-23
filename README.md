@@ -9,7 +9,7 @@ Anatid exposes two endpoint for polling and posting tribune messages.
 ### /anatid/poll
 
 ```javascript
-var ws = new WebSocket("ws://localhost:8000/anatid/poll", "anatid");
+var ws = new WebSocket("ws://localhost:6666/anatid/poll", "anatid");
 ws.onmessage = function (event) {
   console.log(event.data);
 };
@@ -18,5 +18,5 @@ ws.onmessage = function (event) {
 ### /anatid/post
 
 ```bash
-curl -X POST -d "message=plop" -d "tribune=euromussels" 'http://localhost:8000/anatid/post'
+curl -X POST -d "message=plop" -d "tribune=euromussels" 'http://localhost:6666/anatid/post'
 ```
