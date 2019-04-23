@@ -28,17 +28,6 @@ func newClient(ws *websocket.Conn) *client {
 	return &client{ws: ws, send: make(chan []byte, 8)}
 }
 
-func (c *client) readLoop() {
-	defer c.ws.Close()
-	c.ws.SetReadLimit(1024)
-	for {
-		_, _, err := c.ws.ReadMessage()
-		if err != nil {
-			break
-		}
-	}
-}
-
 func (c *client) writeLoop() {
 	for msg := range c.send {
 		err := c.ws.WriteMessage(websocket.TextMessage, msg)
@@ -108,8 +97,7 @@ func (a *anatid) handlePoll(w http.ResponseWriter, r *http.Request) {
 	c := newClient(ws)
 	a.join <- c
 	defer func() { a.leave <- c }()
-	go c.writeLoop()
-	c.readLoop()
+	c.writeLoop()
 }
 
 func (a *anatid) handlePost(w http.ResponseWriter, r *http.Request) {
