@@ -11,6 +11,14 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var listenAddress string
+var verboseMode bool
+
+func init() {
+	flag.StringVar(&listenAddress, "listen", ":6666", "TCP address to listen on")
+	flag.BoolVar(&verboseMode, "verbose", false, "Verbose logging")
+}
+
 type client struct {
 	ws   *websocket.Conn
 	send chan []byte
@@ -133,7 +141,9 @@ func (a *anatid) pollTribunes() {
 }
 
 func (a *anatid) pollTribune(t *tribune.Tribune) error {
-	//	log.Printf("Poll %s\n", t.Name)
+	if verboseMode {
+		log.Printf("Poll %s\n", t.Name)
+	}
 	posts, err := t.Poll()
 	if nil != err {
 		return err
@@ -151,20 +161,15 @@ func (a *anatid) pollLoop() {
 	for {
 		select {
 		case t := <-a.poll:
-			log.Printf("Poll %s\n", t.Name)
 			a.pollTribune(t)
 		case <-tick:
-			log.Printf("Poll all tribunes\n")
 			a.pollTribunes()
 		}
 	}
 }
 
 func main() {
-	var listenAddress string
-	flag.StringVar(&listenAddress, "listen", ":6666", "TCP address to listen on")
 	flag.Parse()
-
 	a := newAnatid()
 	go a.forwardLoop()
 	go a.pollLoop()
