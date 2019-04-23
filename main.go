@@ -48,6 +48,7 @@ type anatid struct {
 	forward  chan []byte
 	upgrader websocket.Upgrader
 	tribunes map[string]*tribune.Tribune
+	poll     chan *tribune.Tribune
 }
 
 func newAnatid() *anatid {
@@ -68,6 +69,7 @@ func newAnatid() *anatid {
 			"dlfp":        &tribune.Tribune{Name: "dlfp ", BackendURL: "https://linuxfr.org/board/index.tsv", PostURL: "https://linuxfr.org/api/v1/board", PostField: "message", AuthentificationType: tribune.OAuth2Authentification},
 			"batavie":     &tribune.Tribune{Name: "batavie ", BackendURL: "http://batavie.leguyader.eu/remote.xml", PostURL: "http://batavie.leguyader.eu/index.php/add", PostField: "message", BackendType: tribune.XMLBackend},
 		},
+		poll: make(chan *tribune.Tribune),
 	}
 }
 
@@ -116,33 +118,43 @@ func (a *anatid) handlePost(w http.ResponseWriter, r *http.Request) {
 	t := a.tribunes[r.PostFormValue("tribune")]
 	if nil != t {
 		t.Post(r)
+		a.poll <- t
 	}
-
 }
 
 func (a *anatid) pollTribunes() {
 	for _, t := range a.tribunes {
-		log.Printf("Poll %s \n", t.Name)
-		posts, err := t.Poll()
+		err := a.pollTribune(t)
 		if nil != err {
 			log.Println(err)
 			continue
 		}
-		postsJSON, err := json.Marshal(posts)
-		if nil != err {
-			log.Println(err)
-			continue
-		}
-		a.forward <- postsJSON
 	}
+}
 
+func (a *anatid) pollTribune(t *tribune.Tribune) error {
+	//	log.Printf("Poll %s\n", t.Name)
+	posts, err := t.Poll()
+	if nil != err {
+		return err
+	}
+	postsJSON, err := json.Marshal(posts)
+	if nil != err {
+		return err
+	}
+	a.forward <- postsJSON
+	return nil
 }
 
 func (a *anatid) pollLoop() {
 	tick := time.Tick(30 * time.Second)
 	for {
 		select {
+		case t := <-a.poll:
+			log.Printf("Poll %s\n", t.Name)
+			a.pollTribune(t)
 		case <-tick:
+			log.Printf("Poll all tribunes\n")
 			a.pollTribunes()
 		}
 	}
@@ -165,7 +177,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome to anatid server."))
 	})
-	log.Println("Listen to " + listenAddress)
+	log.Printf("Listen to %s\n", listenAddress)
 	err := http.ListenAndServe(listenAddress, nil)
 	if nil != err {
 		log.Fatal(err)
