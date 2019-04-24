@@ -1,7 +1,7 @@
 package tribune
 
 import (
-	"encoding/csv"
+	"bufio"
 	"encoding/json"
 	"encoding/xml"
 	"io"
@@ -50,7 +50,7 @@ func (tribune *Tribune) Post(inRequest *http.Request) {
 	}
 	if tribune.AuthentificationType == OAuth2Authentification {
 		var token DlfpToken
-		err := json.Unmarshal([]byte(inRequest.PostFormValue("auth")), token)
+		err := json.Unmarshal([]byte(inRequest.PostFormValue("auth")), &token)
 		if nil == err {
 			data.Set("bearer_token", token.AccessToken)
 		} else {
@@ -101,23 +101,11 @@ func (tribune *Tribune) parseXMLBackend(body io.ReadCloser) (Posts, error) {
 }
 
 func (tribune *Tribune) parseTSVBackend(body io.ReadCloser) (Posts, error) {
-	r := csv.NewReader(body)
-	r.Comma = '\t'
-	r.LazyQuotes = true
-
 	posts := make(Posts, 0, 200)
-	for {
-		record, err := r.Read()
-		if nil != err {
-			if err == io.EOF {
-				break
-			} else {
-				return nil, err
-			}
-		}
-		if nil == record {
-			break
-		}
+	scanner := bufio.NewScanner(body)
+	for scanner.Scan() {
+		line := scanner.Text()
+		record := strings.Split(line, "\t")
 		if len(record) < 5 {
 			continue
 		}
@@ -128,6 +116,9 @@ func (tribune *Tribune) parseTSVBackend(body io.ReadCloser) (Posts, error) {
 		}
 		post := Post{ID: id, Time: record[1], Info: record[2], Login: record[3], Message: record[4], Tribune: tribune.Name}
 		posts = append(posts, post)
+	}
+	if err := scanner.Err(); err != nil {
+		log.Println(err)
 	}
 	return posts, nil
 }
