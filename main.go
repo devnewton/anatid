@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -19,16 +20,25 @@ func init() {
 	flag.BoolVar(&verboseMode, "verbose", false, "Verbose logging")
 }
 
-type client struct {
-	ws   *websocket.Conn
+type client interface {
+	sendChan() chan []byte
+	writeLoop()
+}
+
+type clientWebsocket struct {
 	send chan []byte
+	ws   *websocket.Conn
 }
 
-func newClient(ws *websocket.Conn) *client {
-	return &client{ws: ws, send: make(chan []byte, 8)}
+func newClientWebsocket(ws *websocket.Conn) *clientWebsocket {
+	return &clientWebsocket{ws: ws, send: make(chan []byte, 8)}
 }
 
-func (c *client) writeLoop() {
+func (c *clientWebsocket) sendChan() chan []byte {
+	return c.send
+}
+
+func (c *clientWebsocket) writeLoop() {
 	for msg := range c.send {
 		err := c.ws.WriteMessage(websocket.TextMessage, msg)
 		if err != nil {
@@ -38,10 +48,38 @@ func (c *client) writeLoop() {
 	c.ws.Close()
 }
 
+type clientServerSentEvent struct {
+	send    chan []byte
+	w       http.ResponseWriter
+	flusher http.Flusher
+}
+
+func newClientServerSentEvent(w http.ResponseWriter, flusher http.Flusher) *clientServerSentEvent {
+	return &clientServerSentEvent{w: w, flusher: flusher, send: make(chan []byte, 8)}
+}
+
+func (c *clientServerSentEvent) sendChan() chan []byte {
+	return c.send
+}
+
+func (c *clientServerSentEvent) writeLoop() {
+	closeEvt := c.w.(http.CloseNotifier).CloseNotify()
+	for {
+		select {
+		case <-closeEvt:
+			return
+		case msg := <-c.send:
+			fmt.Fprintf(c.w, "data: %s\n\n", msg)
+		default:
+			c.flusher.Flush()
+		}
+	}
+}
+
 type anatid struct {
-	clients  map[*client]struct{}
-	join     chan *client
-	leave    chan *client
+	clients  map[client]struct{}
+	join     chan client
+	leave    chan client
 	forward  chan []byte
 	upgrader websocket.Upgrader
 	tribunes map[string]*tribune.Tribune
@@ -50,9 +88,9 @@ type anatid struct {
 
 func newAnatid() *anatid {
 	return &anatid{
-		clients: make(map[*client]struct{}),
-		join:    make(chan *client),
-		leave:   make(chan *client),
+		clients: make(map[client]struct{}),
+		join:    make(chan client),
+		leave:   make(chan client),
 		forward: make(chan []byte),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  65536,
@@ -77,10 +115,10 @@ func (a *anatid) forwardLoop() {
 			a.clients[c] = struct{}{}
 		case c := <-a.leave:
 			delete(a.clients, c)
-			close(c.send)
+			close(c.sendChan())
 		case msg := <-a.forward:
 			for c := range a.clients {
-				c.send <- msg
+				c.sendChan() <- msg
 			}
 		}
 	}
@@ -94,7 +132,22 @@ func (a *anatid) handlePoll(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	c := newClient(ws)
+	c := newClientWebsocket(ws)
+	a.join <- c
+	defer func() { a.leave <- c }()
+	c.writeLoop()
+}
+
+func (a *anatid) handlePollServerSentEvent(w http.ResponseWriter, r *http.Request) {
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	c := newClientServerSentEvent(w, flusher)
 	a.join <- c
 	defer func() { a.leave <- c }()
 	c.writeLoop()
@@ -161,6 +214,9 @@ func main() {
 	go a.pollLoop()
 	http.HandleFunc("/anatid/poll", func(w http.ResponseWriter, r *http.Request) {
 		a.handlePoll(w, r)
+	})
+	http.HandleFunc("/anatid/poll/sse", func(w http.ResponseWriter, r *http.Request) {
+		a.handlePollServerSentEvent(w, r)
 	})
 	http.HandleFunc("/anatid/post", func(w http.ResponseWriter, r *http.Request) {
 		a.handlePost(w, r)
