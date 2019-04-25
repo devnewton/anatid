@@ -101,7 +101,7 @@ func newAnatid() *anatid {
 			"sveetch":     &tribune.Tribune{Name: "sveetch", BackendURL: "http://sveetch.net/tribune/remote/tsv/", PostURL: "http://sveetch.net/tribune/post/tsv/?last_id=1", PostField: "content"},
 			"moules":      &tribune.Tribune{Name: "moules", BackendURL: "http://moules.org/board/backend/tsv", PostURL: "http://moules.org/board/add.php?backend=tsv", PostField: "message"},
 			"ototu":       &tribune.Tribune{Name: "ototu", BackendURL: "https://ototu.euromussels.eu/goboard/backend/tsv", PostURL: "https://ototu.euromussels.eu/goboard/post", PostField: "message"},
-			"dlfp":        &tribune.Tribune{Name: "dlfp ", BackendURL: "https://linuxfr.org/board/index.tsv", PostURL: "https://linuxfr.org/api/v1/board", PostField: "message", AuthentificationType: tribune.OAuth2Authentification},
+			"dlfp":        &tribune.Tribune{Name: "dlfp", BackendURL: "https://linuxfr.org/board/index.tsv", PostURL: "https://linuxfr.org/api/v1/board", PostField: "message", AuthentificationType: tribune.OAuth2Authentification},
 			"batavie":     &tribune.Tribune{Name: "batavie ", BackendURL: "http://batavie.leguyader.eu/remote.xml", PostURL: "http://batavie.leguyader.eu/index.php/add", PostField: "message", BackendType: tribune.XMLBackend},
 		},
 		poll: make(chan *tribune.Tribune),

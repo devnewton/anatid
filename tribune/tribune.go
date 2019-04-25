@@ -1,10 +1,10 @@
 package tribune
 
 import (
-	"bufio"
 	"encoding/json"
 	"encoding/xml"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -105,9 +105,12 @@ func (tribune *Tribune) parseXMLBackend(body io.ReadCloser) (Posts, error) {
 
 func (tribune *Tribune) parseTSVBackend(body io.ReadCloser) (Posts, error) {
 	posts := make(Posts, 0, 200)
-	scanner := bufio.NewScanner(body)
-	for scanner.Scan() {
-		line := scanner.Text()
+	data, err := ioutil.ReadAll(body)
+	if nil != err {
+		return nil, err
+	}
+	lines := strings.Split(string(data), "\n")
+	for _, line := range lines {
 		record := strings.Split(line, "\t")
 		if len(record) < 5 {
 			continue
@@ -119,9 +122,6 @@ func (tribune *Tribune) parseTSVBackend(body io.ReadCloser) (Posts, error) {
 		}
 		post := Post{ID: id, Time: record[1], Info: record[2], Login: record[3], Message: record[4], Tribune: tribune.Name}
 		posts = append(posts, post)
-	}
-	if err := scanner.Err(); err != nil {
-		log.Println(err)
 	}
 	return posts, nil
 }
