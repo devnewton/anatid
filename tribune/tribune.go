@@ -97,6 +97,9 @@ func (tribune *Tribune) parseXMLBackend(body io.ReadCloser) (Posts, error) {
 	board := Board{}
 	decoder := xml.NewDecoder(body)
 	err := decoder.Decode(&board)
+	for _, post := range board.Posts {
+		post.Tribune = tribune.Name
+	}
 	return board.Posts, err
 }
 
