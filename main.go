@@ -84,6 +84,7 @@ type anatid struct {
 	upgrader websocket.Upgrader
 	tribunes map[string]*tribune.Tribune
 	poll     chan *tribune.Tribune
+	indexer  tribune.Indexer
 }
 
 func newAnatid() *anatid {
@@ -104,7 +105,8 @@ func newAnatid() *anatid {
 			"dlfp":        &tribune.Tribune{Name: "dlfp", BackendURL: "https://linuxfr.org/board/index.tsv", PostURL: "https://linuxfr.org/api/v1/board", PostField: "message", AuthentificationType: tribune.OAuth2Authentification},
 			"batavie":     &tribune.Tribune{Name: "batavie ", BackendURL: "http://batavie.leguyader.eu/remote.xml", PostURL: "http://batavie.leguyader.eu/index.php/add", PostField: "message", BackendType: tribune.XMLBackend},
 		},
-		poll: make(chan *tribune.Tribune),
+		poll:    make(chan *tribune.Tribune),
+		indexer: tribune.NewIndexer(),
 	}
 }
 
@@ -166,6 +168,21 @@ func (a *anatid) handlePost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a *anatid) handleSearch(w http.ResponseWriter, r *http.Request) {
+	query := r.FormValue("query")
+	results, err := a.indexer.Search(query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	encoder := json.NewEncoder(w)
+	err = encoder.Encode(results)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func (a *anatid) pollTribunes() {
 	for _, t := range a.tribunes {
 		err := a.pollTribune(t)
@@ -192,6 +209,7 @@ func (a *anatid) pollTribune(t *tribune.Tribune) error {
 		}
 		a.forward <- postJSON
 	}
+	go a.indexer.Index(posts)
 	return err
 }
 
@@ -220,6 +238,9 @@ func main() {
 	})
 	http.HandleFunc("/anatid/post", func(w http.ResponseWriter, r *http.Request) {
 		a.handlePost(w, r)
+	})
+	http.HandleFunc("/anatid/search", func(w http.ResponseWriter, r *http.Request) {
+		a.handleSearch(w, r)
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome to anatid server."))
