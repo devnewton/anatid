@@ -3,13 +3,11 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"./tribune"
-	"github.com/gorilla/websocket"
 )
 
 var listenAddress string
@@ -20,83 +18,22 @@ func init() {
 	flag.BoolVar(&verboseMode, "verbose", false, "Verbose logging")
 }
 
-type client interface {
-	sendChan() chan []byte
-	writeLoop()
-}
-
-type clientWebsocket struct {
-	send chan []byte
-	ws   *websocket.Conn
-}
-
-func newClientWebsocket(ws *websocket.Conn) *clientWebsocket {
-	return &clientWebsocket{ws: ws, send: make(chan []byte, 8)}
-}
-
-func (c *clientWebsocket) sendChan() chan []byte {
-	return c.send
-}
-
-func (c *clientWebsocket) writeLoop() {
-	for msg := range c.send {
-		err := c.ws.WriteMessage(websocket.TextMessage, msg)
-		if err != nil {
-			break
-		}
-	}
-	c.ws.Close()
-}
-
-type clientServerSentEvent struct {
-	send    chan []byte
-	w       http.ResponseWriter
-	flusher http.Flusher
-}
-
-func newClientServerSentEvent(w http.ResponseWriter, flusher http.Flusher) *clientServerSentEvent {
-	return &clientServerSentEvent{w: w, flusher: flusher, send: make(chan []byte, 8)}
-}
-
-func (c *clientServerSentEvent) sendChan() chan []byte {
-	return c.send
-}
-
-func (c *clientServerSentEvent) writeLoop() {
-	closeEvt := c.w.(http.CloseNotifier).CloseNotify()
-	for {
-		select {
-		case <-closeEvt:
-			return
-		case msg := <-c.send:
-			fmt.Fprintf(c.w, "data: %s\n\n", msg)
-		default:
-			c.flusher.Flush()
-		}
-	}
-}
-
 type anatid struct {
-	clients  map[client]struct{}
-	join     chan client
-	leave    chan client
-	forward  chan []byte
-	upgrader websocket.Upgrader
-	tribunes map[string]*tribune.Tribune
-	poll     chan *tribune.Tribune
-	indexer  tribune.Indexer
+	coincoins map[*tribune.Coincoin]struct{}
+	join      chan *tribune.Coincoin
+	leave     chan *tribune.Coincoin
+	forward   chan tribune.Post
+	tribunes  map[string]*tribune.Tribune
+	poll      chan *tribune.Tribune
+	indexer   tribune.Indexer
 }
 
 func newAnatid() *anatid {
 	return &anatid{
-		clients: make(map[client]struct{}),
-		join:    make(chan client),
-		leave:   make(chan client),
-		forward: make(chan []byte),
-		upgrader: websocket.Upgrader{
-			ReadBufferSize:  65536,
-			WriteBufferSize: 65536,
-		},
+		coincoins: make(map[*tribune.Coincoin]struct{}),
+		join:      make(chan *tribune.Coincoin),
+		leave:     make(chan *tribune.Coincoin),
+		forward:   make(chan tribune.Post),
 		tribunes: map[string]*tribune.Tribune{
 			"euromussels": &tribune.Tribune{Name: "euromussels", BackendURL: "https://faab.euromussels.eu/data/backend.tsv", PostURL: "https://faab.euromussels.eu/add.php", PostField: "message"},
 			"sveetch":     &tribune.Tribune{Name: "sveetch", BackendURL: "http://sveetch.net/tribune/remote/tsv/", PostURL: "http://sveetch.net/tribune/post/tsv/?last_id=1", PostField: "content"},
@@ -114,33 +51,24 @@ func (a *anatid) forwardLoop() {
 	for {
 		select {
 		case c := <-a.join:
-			a.clients[c] = struct{}{}
+			a.coincoins[c] = struct{}{}
 		case c := <-a.leave:
-			delete(a.clients, c)
-			close(c.sendChan())
-		case msg := <-a.forward:
-			for c := range a.clients {
-				c.sendChan() <- msg
+			delete(a.coincoins, c)
+			close(c.Send)
+		case post := <-a.forward:
+			js, err := json.Marshal(post)
+			if nil != err {
+				log.Println(err)
+				continue
+			}
+			for c := range a.coincoins {
+				c.Send <- tribune.CoincoinMessage{Post: post, Data: js}
 			}
 		}
 	}
 }
 
 func (a *anatid) handlePoll(w http.ResponseWriter, r *http.Request) {
-	ws, err := a.upgrader.Upgrade(w, r, nil)
-	if nil != err {
-		if _, ok := err.(websocket.HandshakeError); !ok {
-			log.Println(err)
-		}
-		return
-	}
-	c := newClientWebsocket(ws)
-	a.join <- c
-	defer func() { a.leave <- c }()
-	c.writeLoop()
-}
-
-func (a *anatid) handlePollServerSentEvent(w http.ResponseWriter, r *http.Request) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
@@ -149,10 +77,10 @@ func (a *anatid) handlePollServerSentEvent(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-	c := newClientServerSentEvent(w, flusher)
+	c := tribune.NewCoincoin(w, flusher)
 	a.join <- c
 	defer func() { a.leave <- c }()
-	c.writeLoop()
+	c.WriteLoop()
 }
 
 func (a *anatid) handlePost(w http.ResponseWriter, r *http.Request) {
@@ -202,12 +130,7 @@ func (a *anatid) pollTribune(t *tribune.Tribune) error {
 		return err
 	}
 	for _, p := range posts {
-		postJSON, err := json.Marshal(p)
-		if nil != err {
-			log.Println(err)
-			continue
-		}
-		a.forward <- postJSON
+		a.forward <- p
 	}
 	go a.indexer.Index(posts)
 	return err
@@ -232,9 +155,6 @@ func main() {
 	go a.pollLoop()
 	http.HandleFunc("/anatid/poll", func(w http.ResponseWriter, r *http.Request) {
 		a.handlePoll(w, r)
-	})
-	http.HandleFunc("/anatid/poll/sse", func(w http.ResponseWriter, r *http.Request) {
-		a.handlePollServerSentEvent(w, r)
 	})
 	http.HandleFunc("/anatid/post", func(w http.ResponseWriter, r *http.Request) {
 		a.handlePost(w, r)
