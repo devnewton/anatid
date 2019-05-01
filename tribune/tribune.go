@@ -2,7 +2,6 @@ package tribune
 
 import (
 	"encoding/json"
-	"encoding/xml"
 	"io"
 	"io/ioutil"
 	"log"
@@ -11,14 +10,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-)
-
-const (
-	// TSVBackend denotes a TSV tribune backend
-	TSVBackend = 0
-
-	// XMLBackend denotes a TSV tribune backend
-	XMLBackend = 1
 )
 
 const (
@@ -78,29 +69,13 @@ func (tribune *Tribune) Poll() (posts Posts, err error) {
 	}
 	defer resp.Body.Close()
 
-	switch tribune.BackendType {
-	case TSVBackend:
-		posts, err = tribune.parseTSVBackend(resp.Body)
-	case XMLBackend:
-		posts, err = tribune.parseXMLBackend(resp.Body)
-	}
-
+	posts, err = tribune.parseTSVBackend(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	sort.Sort(posts)
 	return posts, nil
-}
-
-func (tribune *Tribune) parseXMLBackend(body io.ReadCloser) (Posts, error) {
-	board := Board{}
-	decoder := xml.NewDecoder(body)
-	err := decoder.Decode(&board)
-	for _, post := range board.Posts {
-		post.Tribune = tribune.Name
-	}
-	return board.Posts, err
 }
 
 func (tribune *Tribune) parseTSVBackend(body io.ReadCloser) (Posts, error) {
