@@ -25,7 +25,6 @@ type Tribune struct {
 	BackendURL           string
 	PostURL              string
 	PostField            string
-	BackendType          int
 	AuthentificationType int
 }
 
