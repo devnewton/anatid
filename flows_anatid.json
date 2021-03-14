@@ -1,14 +1,12 @@
-[{
+[
+    {
         "id": "61303f98.07e44",
         "type": "tab",
-        "label": "Flow 1"
-    }, {
-        "id": "c499231e.99a238",
-        "type": "websocket-listener",
-        "z": "",
-        "path": "/anatid/poll",
-        "wholemsg": "false"
-    }, {
+        "label": "anatid",
+        "disabled": false,
+        "info": ""
+    },
+    {
         "id": "cf895bf0.f72fc8",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -19,22 +17,32 @@
         "tls": "",
         "x": 529,
         "y": 183,
-        "wires": [["6507ea83.6ffcdc"]]
-    }, {
+        "wires": [
+            [
+                "6507ea83.6ffcdc"
+            ]
+        ]
+    },
+    {
         "id": "17e28d4e.9051d3",
         "type": "inject",
         "z": "61303f98.07e44",
         "name": "poll euromussels",
-        "topic": "euromussels",
-        "payload": "",
-        "payloadType": "date",
         "repeat": "",
         "crontab": "",
         "once": false,
+        "topic": "euromussels",
+        "payload": "",
+        "payloadType": "date",
         "x": 128.00001525878906,
         "y": 182,
-        "wires": [["cf895bf0.f72fc8"]]
-    }, {
+        "wires": [
+            [
+                "cf895bf0.f72fc8"
+            ]
+        ]
+    },
+    {
         "id": "c982b01d.fec06",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -45,36 +53,51 @@
         "tls": "",
         "x": 514,
         "y": 423,
-        "wires": [["4453731a.57d7b4"]]
-    }, {
+        "wires": [
+            [
+                "4453731a.57d7b4"
+            ]
+        ]
+    },
+    {
         "id": "4970a4c.1c10cdc",
         "type": "inject",
         "z": "61303f98.07e44",
         "name": "poll moules",
-        "topic": "moules",
-        "payload": "",
-        "payloadType": "date",
         "repeat": "",
         "crontab": "",
         "once": false,
+        "topic": "moules",
+        "payload": "",
+        "payloadType": "date",
         "x": 119.00001525878906,
         "y": 408,
-        "wires": [["c982b01d.fec06"]]
-    }, {
+        "wires": [
+            [
+                "c982b01d.fec06"
+            ]
+        ]
+    },
+    {
         "id": "4798532a.6d30e4",
         "type": "inject",
         "z": "61303f98.07e44",
         "name": "poll sveetch",
-        "topic": "sveetch",
-        "payload": "",
-        "payloadType": "date",
         "repeat": "",
         "crontab": "",
         "once": false,
+        "topic": "sveetch",
+        "payload": "",
+        "payloadType": "date",
         "x": 133.00001525878906,
         "y": 316,
-        "wires": [["1d901bf9.23d42c"]]
-    }, {
+        "wires": [
+            [
+                "1d901bf9.23d42c"
+            ]
+        ]
+    },
+    {
         "id": "1d901bf9.23d42c",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -85,22 +108,32 @@
         "tls": "",
         "x": 497,
         "y": 300,
-        "wires": [["8ce56711.86efc"]]
-    }, {
+        "wires": [
+            [
+                "8ce56711.86efc"
+            ]
+        ]
+    },
+    {
         "id": "810da14d.be6f",
         "type": "inject",
         "z": "61303f98.07e44",
         "name": "poll ototu",
-        "topic": "ototu",
-        "payload": "",
-        "payloadType": "date",
         "repeat": "",
         "crontab": "",
         "once": false,
+        "topic": "ototu",
+        "payload": "",
+        "payloadType": "date",
         "x": 108,
         "y": 501,
-        "wires": [["5cff0e0e.508fa"]]
-    }, {
+        "wires": [
+            [
+                "5cff0e0e.508fa"
+            ]
+        ]
+    },
+    {
         "id": "5cff0e0e.508fa",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -111,22 +144,32 @@
         "tls": "",
         "x": 504,
         "y": 503,
-        "wires": [["2c1f7fa8.ffc58"]]
-    }, {
+        "wires": [
+            [
+                "2c1f7fa8.ffc58"
+            ]
+        ]
+    },
+    {
         "id": "72dd361f.8bd7",
         "type": "inject",
         "z": "61303f98.07e44",
         "name": "poll dlfp",
-        "topic": "dlfp",
-        "payload": "",
-        "payloadType": "date",
         "repeat": "",
         "crontab": "",
         "once": false,
+        "topic": "dlfp",
+        "payload": "",
+        "payloadType": "date",
         "x": 114.00001525878906,
         "y": 97.99999237060547,
-        "wires": [["93112fdc.ca9a48"]]
-    }, {
+        "wires": [
+            [
+                "93112fdc.ca9a48"
+            ]
+        ]
+    },
+    {
         "id": "2ae3c98a.b3b99e",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -135,69 +178,100 @@
         "ret": "txt",
         "url": "https://linuxfr.org/board/index.tsv",
         "tls": "",
-        "x": 550,
-        "y": 120,
-        "wires": [["e7789fd8.3c2ac8"]]
-    }, {
-        "id": "a6dc91bb.f2bdb",
-        "type": "csv",
-        "z": "61303f98.07e44",
-        "name": "tsv",
-        "sep": "\\t",
-        "hdrin": "",
-        "hdrout": "",
-        "multi": "mult",
-        "ret": "\\n",
-        "temp": "id,time,info,login,message",
-        "x": 901,
-        "y": 352,
-        "wires": [["a843ad60.d89a28"]]
-    }, {
+        "x": 650,
+        "y": 100,
+        "wires": [
+            [
+                "e7789fd8.3c2ac8"
+            ]
+        ]
+    },
+    {
         "id": "4880d8dd.fabf6",
         "type": "link in",
         "z": "61303f98.07e44",
         "name": "poll dlfp input",
-        "links": ["a80787c.19faff8", "c783f4a6.da4ce8"],
-        "x": 175,
+        "links": [
+            "a80787c.19faff8",
+            "c783f4a6.da4ce8"
+        ],
+        "x": 135,
         "y": 60,
-        "wires": [["556ed2f7.0d88d4"]]
-    }, {
+        "wires": [
+            [
+                "556ed2f7.0d88d4"
+            ]
+        ]
+    },
+    {
         "id": "4225cfab.bd4ea8",
         "type": "link in",
         "z": "61303f98.07e44",
         "name": "poll euromussels input",
-        "links": ["c79dd01a.198538", "9f6ab290.569118"],
+        "links": [
+            "c79dd01a.198538",
+            "9f6ab290.569118"
+        ],
         "x": 185.00001525878906,
         "y": 145,
-        "wires": [["a14feb47.cdfca"]]
-    }, {
+        "wires": [
+            [
+                "a14feb47.cdfca"
+            ]
+        ]
+    },
+    {
         "id": "9e1f0fd9.d39bf",
         "type": "link in",
         "z": "61303f98.07e44",
         "name": "xpost sveetch input",
-        "links": ["d9b9f23c.1d411", "3ffb383f.be3fa"],
+        "links": [
+            "d9b9f23c.1d411",
+            "3ffb383f.be3fa"
+        ],
         "x": 357,
         "y": 340,
-        "wires": [["8ce56711.86efc"]]
-    }, {
+        "wires": [
+            [
+                "8ce56711.86efc"
+            ]
+        ]
+    },
+    {
         "id": "768b1862.cbd33",
         "type": "link in",
         "z": "61303f98.07e44",
         "name": "xpost moules input",
-        "links": ["f867cfdc.414808", "6e631e39.f23a5"],
+        "links": [
+            "f867cfdc.414808",
+            "6e631e39.f23a5"
+        ],
         "x": 559,
         "y": 463,
-        "wires": [["4453731a.57d7b4"]]
-    }, {
+        "wires": [
+            [
+                "4453731a.57d7b4"
+            ]
+        ]
+    },
+    {
         "id": "ca78fa6b.c7bdc",
         "type": "link in",
         "z": "61303f98.07e44",
         "name": "poll ototu input",
-        "links": ["3ee761c0.7d4646", "dbeb42a8.f9b87"],
+        "links": [
+            "3ee761c0.7d4646",
+            "dbeb42a8.f9b87"
+        ],
         "x": 195.00001525878906,
         "y": 462.9999694824219,
-        "wires": [["809f4bd2.3953c"]]
-    }, {
+        "wires": [
+            [
+                "809f4bd2.3953c"
+            ]
+        ]
+    },
+    {
         "id": "a843ad60.d89a28",
         "type": "function",
         "z": "61303f98.07e44",
@@ -205,31 +279,39 @@
         "func": "return [ \n    msg.payload.sort(function(a, b) {\n    if(a.id < b.id) {\n        return -1;\n    } else if( a.id > b.id) {\n        return 1;\n    } else {\n        return 0;\n    }\n}).map(function(post) {\n    post.tribune = msg.topic;\n    return {\n        \"payload\": post\n    }\n})\n];",
         "outputs": "1",
         "noerr": 0,
-        "x": 1267,
-        "y": 331,
-        "wires": [["b354fd39.65526"]]
-    }, {
+        "x": 1190,
+        "y": 240,
+        "wires": [
+            [
+                "b354fd39.65526"
+            ]
+        ]
+    },
+    {
         "id": "b354fd39.65526",
         "type": "websocket out",
         "z": "61303f98.07e44",
         "name": "",
         "server": "c499231e.99a238",
         "client": "",
-        "x": 1506.0001220703125,
-        "y": 341,
+        "x": 1420,
+        "y": 240,
         "wires": []
-    }, {
+    },
+    {
         "id": "6507ea83.6ffcdc",
         "type": "change",
         "z": "61303f98.07e44",
         "name": "setup",
-        "rules": [{
+        "rules": [
+            {
                 "t": "set",
                 "p": "topic",
                 "pt": "msg",
                 "to": "euromussels",
                 "tot": "str"
-            }],
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
@@ -237,19 +319,26 @@
         "reg": false,
         "x": 719,
         "y": 183,
-        "wires": [["a6dc91bb.f2bdb"]]
-    }, {
+        "wires": [
+            [
+                "dc500c1d.e08cf"
+            ]
+        ]
+    },
+    {
         "id": "8ce56711.86efc",
         "type": "change",
         "z": "61303f98.07e44",
         "name": "setup",
-        "rules": [{
+        "rules": [
+            {
                 "t": "set",
                 "p": "topic",
                 "pt": "msg",
                 "to": "sveetch",
                 "tot": "str"
-            }],
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
@@ -257,19 +346,26 @@
         "reg": false,
         "x": 659,
         "y": 330,
-        "wires": [["a6dc91bb.f2bdb"]]
-    }, {
+        "wires": [
+            [
+                "dc500c1d.e08cf"
+            ]
+        ]
+    },
+    {
         "id": "4453731a.57d7b4",
         "type": "change",
         "z": "61303f98.07e44",
         "name": "setup",
-        "rules": [{
+        "rules": [
+            {
                 "t": "set",
                 "p": "topic",
                 "pt": "msg",
                 "to": "moules",
                 "tot": "str"
-            }],
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
@@ -277,19 +373,26 @@
         "reg": false,
         "x": 714,
         "y": 423,
-        "wires": [["a6dc91bb.f2bdb"]]
-    }, {
+        "wires": [
+            [
+                "dc500c1d.e08cf"
+            ]
+        ]
+    },
+    {
         "id": "2c1f7fa8.ffc58",
         "type": "change",
         "z": "61303f98.07e44",
         "name": "setup",
-        "rules": [{
+        "rules": [
+            {
                 "t": "set",
                 "p": "topic",
                 "pt": "msg",
                 "to": "ototu",
                 "tot": "str"
-            }],
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
@@ -297,22 +400,36 @@
         "reg": false,
         "x": 734,
         "y": 503,
-        "wires": [["a6dc91bb.f2bdb"]]
-    }, {
+        "wires": [
+            [
+                "dc500c1d.e08cf"
+            ]
+        ]
+    },
+    {
         "id": "5c1a3c21.ed2e84",
         "type": "inject",
         "z": "61303f98.07e44",
         "name": "poll all",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
         "repeat": "30",
         "crontab": "",
         "once": false,
-        "x": 126.00001525878906,
-        "y": 34.333335876464844,
-        "wires": [["556ed2f7.0d88d4", "a14feb47.cdfca", "f2b165df.2e0e4", "6116d13e.260b5", "809f4bd2.3953c"]]
-    }, {
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 20,
+        "wires": [
+            [
+                "556ed2f7.0d88d4",
+                "a14feb47.cdfca",
+                "f2b165df.2e0e4",
+                "6116d13e.260b5",
+                "809f4bd2.3953c"
+            ]
+        ]
+    },
+    {
         "id": "556ed2f7.0d88d4",
         "type": "delay",
         "z": "61303f98.07e44",
@@ -329,8 +446,13 @@
         "drop": false,
         "x": 340,
         "y": 40,
-        "wires": [["93112fdc.ca9a48"]]
-    }, {
+        "wires": [
+            [
+                "93112fdc.ca9a48"
+            ]
+        ]
+    },
+    {
         "id": "a14feb47.cdfca",
         "type": "delay",
         "z": "61303f98.07e44",
@@ -347,8 +469,13 @@
         "drop": false,
         "x": 326.33331298828125,
         "y": 156.33334350585938,
-        "wires": [["cf895bf0.f72fc8"]]
-    }, {
+        "wires": [
+            [
+                "cf895bf0.f72fc8"
+            ]
+        ]
+    },
+    {
         "id": "f2b165df.2e0e4",
         "type": "delay",
         "z": "61303f98.07e44",
@@ -365,8 +492,13 @@
         "drop": false,
         "x": 311.33331298828125,
         "y": 269.3333435058594,
-        "wires": [["1d901bf9.23d42c"]]
-    }, {
+        "wires": [
+            [
+                "1d901bf9.23d42c"
+            ]
+        ]
+    },
+    {
         "id": "6116d13e.260b5",
         "type": "delay",
         "z": "61303f98.07e44",
@@ -383,8 +515,13 @@
         "drop": false,
         "x": 333.33331298828125,
         "y": 385.3333435058594,
-        "wires": [["c982b01d.fec06"]]
-    }, {
+        "wires": [
+            [
+                "c982b01d.fec06"
+            ]
+        ]
+    },
+    {
         "id": "809f4bd2.3953c",
         "type": "delay",
         "z": "61303f98.07e44",
@@ -401,8 +538,13 @@
         "drop": false,
         "x": 331.33331298828125,
         "y": 468.333251953125,
-        "wires": [["5cff0e0e.508fa"]]
-    }, {
+        "wires": [
+            [
+                "5cff0e0e.508fa"
+            ]
+        ]
+    },
+    {
         "id": "5d40b2c1.f08ea4",
         "type": "http in",
         "z": "61303f98.07e44",
@@ -413,41 +555,69 @@
         "swaggerDoc": "",
         "x": 141.3333282470703,
         "y": 684.3333740234375,
-        "wires": [["64f5cef9.d9a5a8"]]
-    }, {
+        "wires": [
+            [
+                "64f5cef9.d9a5a8"
+            ]
+        ]
+    },
+    {
         "id": "ca9434d1.18fe78",
         "type": "switch",
         "z": "61303f98.07e44",
         "name": "",
         "property": "payload.tribune",
         "propertyType": "msg",
-        "rules": [{
+        "rules": [
+            {
                 "t": "eq",
                 "v": "dlfp",
                 "vt": "str"
-            }, {
+            },
+            {
                 "t": "eq",
                 "v": "euromussels",
                 "vt": "str"
-            }, {
+            },
+            {
                 "t": "eq",
                 "v": "sveetch",
                 "vt": "str"
-            }, {
+            },
+            {
                 "t": "eq",
                 "v": "moules",
                 "vt": "str"
-            }, {
+            },
+            {
                 "t": "eq",
                 "v": "ototu",
                 "vt": "str"
-            }],
+            }
+        ],
         "checkall": "true",
         "outputs": 5,
         "x": 141.3333282470703,
         "y": 884.3333740234375,
-        "wires": [["9d071ba3.5b87b8"], ["b30e350d.c46968"], ["b74fbee2.d0419"], ["7c7cb11.075785"], ["a48dbd7b.50acc"]]
-    }, {
+        "wires": [
+            [
+                "9d071ba3.5b87b8"
+            ],
+            [
+                "b30e350d.c46968"
+            ],
+            [
+                "b74fbee2.d0419"
+            ],
+            [
+                "7c7cb11.075785"
+            ],
+            [
+                "a48dbd7b.50acc"
+            ]
+        ]
+    },
+    {
         "id": "b30e350d.c46968",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -458,8 +628,14 @@
         "tls": "",
         "x": 401.3333282470703,
         "y": 824.3333740234375,
-        "wires": [["2ee0a906.d62706", "9f6ab290.569118"]]
-    }, {
+        "wires": [
+            [
+                "2ee0a906.d62706",
+                "9f6ab290.569118"
+            ]
+        ]
+    },
+    {
         "id": "40857ea6.e6f8",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -470,8 +646,14 @@
         "tls": "",
         "x": 581.3333282470703,
         "y": 924.3333740234375,
-        "wires": [["2ee0a906.d62706", "3ffb383f.be3fa"]]
-    }, {
+        "wires": [
+            [
+                "2ee0a906.d62706",
+                "3ffb383f.be3fa"
+            ]
+        ]
+    },
+    {
         "id": "7c7cb11.075785",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -482,8 +664,14 @@
         "tls": "",
         "x": 461.3333282470703,
         "y": 1004.3333740234375,
-        "wires": [["2ee0a906.d62706", "6e631e39.f23a5"]]
-    }, {
+        "wires": [
+            [
+                "2ee0a906.d62706",
+                "6e631e39.f23a5"
+            ]
+        ]
+    },
+    {
         "id": "a48dbd7b.50acc",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -494,8 +682,14 @@
         "tls": "",
         "x": 491.3333282470703,
         "y": 1084.3333740234375,
-        "wires": [["2ee0a906.d62706", "dbeb42a8.f9b87"]]
-    }, {
+        "wires": [
+            [
+                "2ee0a906.d62706",
+                "dbeb42a8.f9b87"
+            ]
+        ]
+    },
+    {
         "id": "173d2352.bd7d1d",
         "type": "http request",
         "z": "61303f98.07e44",
@@ -506,8 +700,14 @@
         "tls": "",
         "x": 581.3333282470703,
         "y": 764.3333740234375,
-        "wires": [["2ee0a906.d62706", "c783f4a6.da4ce8"]]
-    }, {
+        "wires": [
+            [
+                "2ee0a906.d62706",
+                "15eba75e.314341"
+            ]
+        ]
+    },
+    {
         "id": "9d071ba3.5b87b8",
         "type": "function",
         "z": "61303f98.07e44",
@@ -517,8 +717,13 @@
         "noerr": 0,
         "x": 401.3333282470703,
         "y": 764.3333740234375,
-        "wires": [["173d2352.bd7d1d"]]
-    }, {
+        "wires": [
+            [
+                "173d2352.bd7d1d"
+            ]
+        ]
+    },
+    {
         "id": "2ee0a906.d62706",
         "type": "http response",
         "z": "61303f98.07e44",
@@ -528,24 +733,28 @@
         "x": 831.3333282470703,
         "y": 904.3333740234375,
         "wires": []
-    }, {
+    },
+    {
         "id": "64f5cef9.d9a5a8",
         "type": "change",
         "z": "61303f98.07e44",
         "name": "prepare request",
-        "rules": [{
+        "rules": [
+            {
                 "t": "set",
                 "p": "headers['content-type']",
                 "pt": "msg",
                 "to": "application/x-www-form-urlencoded",
                 "tot": "str"
-            }, {
+            },
+            {
                 "t": "set",
                 "p": "headers['user-agent']",
                 "pt": "msg",
                 "to": "req.headers['user-agent']",
                 "tot": "msg"
-            }],
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
@@ -553,19 +762,26 @@
         "reg": false,
         "x": 131.3333282470703,
         "y": 764.3333740234375,
-        "wires": [["ca9434d1.18fe78"]]
-    }, {
+        "wires": [
+            [
+                "ca9434d1.18fe78"
+            ]
+        ]
+    },
+    {
         "id": "b74fbee2.d0419",
         "type": "change",
         "z": "61303f98.07e44",
         "name": "set content field",
-        "rules": [{
+        "rules": [
+            {
                 "t": "move",
                 "p": "payload.message",
                 "pt": "msg",
                 "to": "payload.content",
                 "tot": "msg"
-            }],
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
@@ -573,90 +789,170 @@
         "reg": false,
         "x": 401.3333282470703,
         "y": 924.3333740234375,
-        "wires": [["40857ea6.e6f8"]]
-    }, {
+        "wires": [
+            [
+                "40857ea6.e6f8"
+            ]
+        ]
+    },
+    {
         "id": "c783f4a6.da4ce8",
         "type": "link out",
         "z": "61303f98.07e44",
         "name": "poll dlfp output",
-        "links": ["a364c3a2.a1b6c", "4880d8dd.fabf6"],
-        "x": 795.4999694824219,
-        "y": 765.0000305175781,
+        "links": [
+            "a364c3a2.a1b6c",
+            "4880d8dd.fabf6"
+        ],
+        "x": 1015,
+        "y": 740,
         "wires": []
-    }, {
+    },
+    {
         "id": "9f6ab290.569118",
         "type": "link out",
         "z": "61303f98.07e44",
         "name": "poll euromussels output",
-        "links": ["18961ea9.3ea239", "4225cfab.bd4ea8"],
+        "links": [
+            "18961ea9.3ea239",
+            "4225cfab.bd4ea8"
+        ],
         "x": 636.3333282470703,
         "y": 804.3333740234375,
         "wires": []
-    }, {
+    },
+    {
         "id": "dbeb42a8.f9b87",
         "type": "link out",
         "z": "61303f98.07e44",
         "name": "poll ototu output",
-        "links": ["2152f7c.a5c2008", "ca78fa6b.c7bdc"],
+        "links": [
+            "2152f7c.a5c2008",
+            "ca78fa6b.c7bdc"
+        ],
         "x": 636.3333282470703,
         "y": 1084.3333740234375,
         "wires": []
-    }, {
+    },
+    {
         "id": "6e631e39.f23a5",
         "type": "link out",
         "z": "61303f98.07e44",
         "name": "xpost moules output",
-        "links": ["768b1862.cbd33"],
+        "links": [
+            "768b1862.cbd33"
+        ],
         "x": 596.3333282470703,
         "y": 1024.3333740234375,
         "wires": []
-    }, {
+    },
+    {
         "id": "3ffb383f.be3fa",
         "type": "link out",
         "z": "61303f98.07e44",
         "name": "xpost sveetch output",
-        "links": ["630d3c96.487164", "9e1f0fd9.d39bf"],
+        "links": [
+            "630d3c96.487164",
+            "9e1f0fd9.d39bf"
+        ],
         "x": 596.3333282470703,
         "y": 964.3333740234375,
         "wires": []
-    }, {
+    },
+    {
         "id": "93112fdc.ca9a48",
         "type": "change",
         "z": "61303f98.07e44",
         "name": "prepare request",
-        "rules": [{
+        "rules": [
+            {
                 "t": "set",
                 "p": "headers['user-agent']",
                 "pt": "msg",
                 "to": "anatid",
                 "tot": "str"
-            }],
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
         "to": "",
         "reg": false,
-        "x": 380,
+        "x": 440,
         "y": 100,
-        "wires": [["2ae3c98a.b3b99e"]]
-    }, {
+        "wires": [
+            [
+                "2ae3c98a.b3b99e"
+            ]
+        ]
+    },
+    {
         "id": "e7789fd8.3c2ac8",
         "type": "change",
         "z": "61303f98.07e44",
         "name": "setup",
-        "rules": [{
+        "rules": [
+            {
                 "t": "set",
                 "p": "topic",
                 "pt": "msg",
                 "to": "dlfp",
                 "tot": "str"
-            }],
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
         "to": "",
         "reg": false,
-        "x": 730,
+        "x": 830,
         "y": 120,
-        "wires": [["a6dc91bb.f2bdb"]]
-    }]
+        "wires": [
+            [
+                "dc500c1d.e08cf"
+            ]
+        ]
+    },
+    {
+        "id": "15eba75e.314341",
+        "type": "function",
+        "z": "61303f98.07e44",
+        "name": "reset message",
+        "func": "return {};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 820,
+        "y": 740,
+        "wires": [
+            [
+                "c783f4a6.da4ce8"
+            ]
+        ]
+    },
+    {
+        "id": "dc500c1d.e08cf",
+        "type": "function",
+        "z": "61303f98.07e44",
+        "name": "parse tsv",
+        "func": "let newPayload = [];\nmsg.payload.split('\\n').forEach((line, index) => {\n    try {\n        let fields = line.split('\\t');\n        newPayload.push({ id: fields[0],time: fields[1],info: fields[2],login: fields[3], message: fields[4] });\n    } catch(e) {\n        node.warn(`Cannot parse line ${index}: ${line} => ${e}`);\n    }\n});\nmsg.payload = newPayload;\nreturn msg;",
+        "outputs": "1",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 960,
+        "y": 240,
+        "wires": [
+            [
+                "a843ad60.d89a28"
+            ]
+        ]
+    },
+    {
+        "id": "c499231e.99a238",
+        "type": "websocket-listener",
+        "path": "/anatid/poll",
+        "wholemsg": "false"
+    }
+]
